@@ -11,4 +11,4 @@ This is a SBT project but for the people not familiar with SBT, do this:
 3. compile
 4. run
 
-And your done. SBT should download all the dependencies for you.
+And you're done. SBT should download all the dependencies for you.
