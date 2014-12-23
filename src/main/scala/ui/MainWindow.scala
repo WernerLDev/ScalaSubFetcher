@@ -16,11 +16,12 @@ import scala.swing.event.WindowActivated
 import javax.swing.ListSelectionModel
 import scala.swing.event.SelectionChanged
 import java.net.URL
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 
 
 
-
-class MainWindow(languages:List[String]) extends SimpleSwingApplication {
+class MainWindow() extends SimpleSwingApplication {
 
   setSystemLookAndFeel()
   val subtitles = new SubtitleTableModel()
@@ -70,21 +71,37 @@ class MainWindow(languages:List[String]) extends SimpleSwingApplication {
     subtable.rowHeight = 23;
     val subscroll = new ScrollPane(subtable)
     
-    
-    
-    val languagecb = new ComboBox(languages)
     val aboutbtn = new Button { text = "About" }
-    
+    val loading = new Label { text = "Loading languages..." }
     val topright = new BoxPanel(Orientation.Horizontal) {
-      contents += new Label { text = "Language" }
-      contents += HStrut(10)
-      contents += languagecb
-      contents += HStrut(30)
+      contents += loading
       contents += aboutbtn
       border = Swing.EmptyBorder(5)
     }
-
     
+    val availableLanguages:Future[List[String]] = Future {
+	    OpenSubtitle.getAvailableLanguages
+    }
+      
+    availableLanguages.onSuccess {
+        case langs => 
+            val languagecb = new ComboBox(langs) 
+          	topright.contents -= loading
+          	topright.contents -= aboutbtn
+          	topright.contents += new Label { text = "Language" }
+            topright.contents += HStrut(10)
+            topright.contents += languagecb
+            topright.contents += HStrut(30)
+            topright.contents += aboutbtn
+            topright.listenTo(languagecb.selection)
+            topright.reactions += {
+                case SelectionChanged(`languagecb`) => subtitles.filterSubtitles(languagecb.selection.item, foundSubtitles)
+            }
+        }
+    
+    availableLanguages.onFailure {
+        case t => println("An error has occured: " + t.getMessage())
+    }
     
     val head = new BorderPanel {
       add(topright, BorderPanel.Position.East )
@@ -98,7 +115,7 @@ class MainWindow(languages:List[String]) extends SimpleSwingApplication {
       border = Swing.EmptyBorder(5)
     }
     
-    listenTo(downloadbtn, selectbtn, languagecb.selection, aboutbtn)
+    listenTo(downloadbtn, selectbtn, aboutbtn)
     reactions += {
 
       case ButtonClicked(`aboutbtn`) => AboutWindow.open
@@ -122,7 +139,7 @@ class MainWindow(languages:List[String]) extends SimpleSwingApplication {
 				      optionType=Dialog.Options.Default ,
 				      title="Download complete")
       }
-      case SelectionChanged(`languagecb`) => subtitles.filterSubtitles(languagecb.selection.item, foundSubtitles)
+      
       case ButtonClicked(`selectbtn`) => {
         val chooser = new FileChooser(new File("."))
 	    val filter = new FileNameExtensionFilter("Movie files (.mkv, .avi, .mov, .mp4)", "mkv", "avi", "mov", "mp4")

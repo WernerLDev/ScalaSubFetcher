@@ -20,3 +20,6 @@ project/plugins/project/
 .classpath
 .settings
 .project
+
+*.scala~
+*.sbt~
