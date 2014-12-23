@@ -3,7 +3,7 @@ import ui.MainWindow
 import javax.swing.UIManager
 
 
-object Hi {
+object ScalaSubFetcher {
 
 	def main(args: Array[String]) = {
 	 
