@@ -122,14 +122,13 @@ class MainWindow() extends SimpleSwingApplication {
       case ButtonClicked(`downloadbtn`) => {
         
         val selected = subtitles.getValueAt(subtable.peer.getSelectedRow(), 0)
-        val downloadlink = foundSubtitles.zipWithIndex.filter(_._2 == subtable.peer.getSelectedRow()).head._1.downloadlink
+        val downloadlink = foundSubtitles.zipWithIndex.filter(
+                             _._2 == subtable.peer.getSelectedRow()
+                           ).head._1.downloadlink
         downloadbtn.enabled = false
         status.text = "Downloading subtitle for " + selected
 
         println("Downloading... : " + selected)
-        //val zip = SubDownloader.downloadTo(new URL(downloadlink), new File("/tmp"))
-        //val archive = new ZipArchive(zip.getPath())
-        //archive.unzipTo(moviedir)
         
         val ziparchive:Future[ZipArchive] = future {
             val zipfile = SubDownloader.downloadTo(new URL(downloadlink), new File("/tmp"))
