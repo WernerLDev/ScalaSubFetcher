@@ -18,6 +18,8 @@ import scala.swing.event.SelectionChanged
 import java.net.URL
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import scala.swing.event.MouseClicked
+import scala.swing.event.MouseClicked
 
 
 
@@ -61,7 +63,12 @@ class MainWindow() extends SimpleSwingApplication {
     val subtable = new Table(3, 2) {
       selection.elementMode = Table.ElementMode.Row 
       selection.intervalMode = Table.IntervalMode.Single 
-      
+      listenTo(mouse.clicks)
+      reactions += {
+        case e:MouseClicked => {
+          if(e.clicks == 2) doDownload
+        }
+      }
     }
     subtable.model = subtitles
     subtable.peer.getColumnModel().getColumn(0).setResizable(true)
@@ -119,10 +126,34 @@ class MainWindow() extends SimpleSwingApplication {
     reactions += {
 
       case ButtonClicked(`aboutbtn`) => AboutWindow.open
-      case ButtonClicked(`downloadbtn`) => {
-        
-        val selected = subtitles.getValueAt(subtable.peer.getSelectedRow(), 0)
-        val downloadlink = foundSubtitles.zipWithIndex.filter(
+      case ButtonClicked(`downloadbtn`) => doDownload
+      case ButtonClicked(`selectbtn`) => {
+        val chooser = new FileChooser(new File("."))
+  	    val filter = new FileNameExtensionFilter("Movie files (.mkv, .avi, .mov, .mp4)", "mkv", "avi", "mov", "mp4")
+  	    chooser.title = "Choose a movie file"
+  	    chooser.controlButtonsAreShown = true
+  	    chooser.fileFilter = filter
+  	    val result = chooser.showOpenDialog(null)
+  	    if (result == FileChooser.Result.Approve) {
+  	      val hash = OpenSubtitlesHasher.computeHash(chooser.selectedFile)
+  	      val length = chooser.selectedFile.length()
+  	      downloadbtn.enabled = true
+  	      println("File: " + chooser.selectedFile)
+  	      println("Dir: " + chooser.selectedFile.getParent())
+  	      println("Hash: " + hash)
+  	      println("Size: " + length.toInt)
+  	      foundSubtitles = OpenSubtitle.searchSubtitles(hash, length)
+  	      moviedir = chooser.selectedFile.getParent
+          subtitles.emptyTable()
+  	      foundSubtitles foreach subtitles.addSubtitle
+  	      status.text = "Found " + foundSubtitles.length + " subtitles"
+  	    } else None
+      }
+    }
+   
+    def doDownload():Unit = {
+      val selected = subtitles.getValueAt(subtable.peer.getSelectedRow(), 0)
+      val downloadlink = foundSubtitles.zipWithIndex.filter(
                              _._2 == subtable.peer.getSelectedRow()
                            ).head._1.downloadlink
         downloadbtn.enabled = false
@@ -130,7 +161,7 @@ class MainWindow() extends SimpleSwingApplication {
 
         println("Downloading... : " + selected)
         
-        val ziparchive:Future[ZipArchive] = future {
+        val ziparchive:Future[ZipArchive] = Future {
             val zipfile = SubDownloader.downloadTo(new URL(downloadlink), new File("/tmp"))
             val archive = new ZipArchive(zipfile.getPath())
             archive.unzipTo(moviedir)
@@ -142,35 +173,14 @@ class MainWindow() extends SimpleSwingApplication {
             downloadbtn.enabled = true
             status.text = "Found " + foundSubtitles.length + " subtitles"
             Dialog.showConfirmation(contents.head, 
-				"Subtitle downloaded to " + moviedir, 
-				optionType=Dialog.Options.Default ,
-				title="Download complete")
+        "Subtitle downloaded to " + moviedir, 
+        optionType=Dialog.Options.Default ,
+        title="Download complete")
         }
-      }
-      case ButtonClicked(`selectbtn`) => {
-        val chooser = new FileChooser(new File("."))
-	    val filter = new FileNameExtensionFilter("Movie files (.mkv, .avi, .mov, .mp4)", "mkv", "avi", "mov", "mp4")
-	    chooser.title = "Choose a movie file"
-	    chooser.controlButtonsAreShown = true
-	    chooser.fileFilter = filter
-	    val result = chooser.showOpenDialog(null)
-	    if (result == FileChooser.Result.Approve) {
-	      val hash = OpenSubtitlesHasher.computeHash(chooser.selectedFile)
-	      val length = chooser.selectedFile.length()
-	      downloadbtn.enabled = true
-	      println("File: " + chooser.selectedFile)
-	      println("Dir: " + chooser.selectedFile.getParent())
-	      println("Hash: " + hash)
-	      println("Size: " + length.toInt)
-	      foundSubtitles = OpenSubtitle.searchSubtitles(hash, length)
-	      moviedir = chooser.selectedFile.getParent
-	      foundSubtitles foreach subtitles.addSubtitle
-	      status.text = "Found " + foundSubtitles.length + " subtitles"
-	    } else None
-      }
     }
     
   }
+  
   
   def setSystemLookAndFeel() {
     import javax.swing.UIManager
