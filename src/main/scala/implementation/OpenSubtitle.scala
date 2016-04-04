@@ -29,7 +29,7 @@ class XmlRpc(inp :OSAPIParameters) {
     client.setTypeFactory(new StringTypeFactory(client))
     
     def getServerInfo() : Object = client.execute("ServerInfo", new Array[Object](0))
-    
+
     def login():LoginResult = {
       val params = Array[Object](inp.user, inp.pwd, inp.language, inp.agent)
       
