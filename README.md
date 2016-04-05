@@ -12,3 +12,12 @@ This is a SBT project but for the people not familiar with SBT, do this:
 - run
 
 And you're done. SBT should download all the dependencies for you.
+
+### Command line options
+The application now has a commande line option. It takes 2 parameters:
+1. The movie file
+2. language name (optional)
+
+"sbt run amovie.mk4 English" will show all available English subtitles
+"sbt run amovie.mk4" will show all available subtitles in any language
+
