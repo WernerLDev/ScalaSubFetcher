@@ -18,6 +18,12 @@ The application now has a commande line option. It takes 2 parameters:
 1. The movie file
 2. language name (optional)
 
-"sbt run amovie.mk4 English" will show all available English subtitles
-"sbt run amovie.mk4" will show all available subtitles in any language
+This will show all English subtitles:
+```
+sbt run amovie.mk4 English
+```
 
+this will show all available subtitles for amovie.mk4
+```
+sbt run amovie.mk4
+```
