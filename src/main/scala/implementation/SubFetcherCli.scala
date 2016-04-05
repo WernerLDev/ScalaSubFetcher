@@ -17,20 +17,29 @@ case class SubFetcherCli(file:String, language:String) {
     val hash = OpenSubtitlesHasher.computeHash(f)
     val subtitles = OpenSubtitle.searchSubtitles(hash, length)
     val subs = subtitles.zipWithIndex.map(x => SubtitleCli(x._2, x._1.name, x._1.language, x._1.downloadlink))
-    subs foreach (x => {
+    val subsfiltered = {
+      if(language == "All") subs 
+      else subs.filter(x => x.language == language)
+    }
+   
+    subsfiltered foreach (x => {
       printf("[%-2s] %-15.15s %-20s\n", x.id, x.language, x.name.trim)
     })
-    val choice = getInt("Enter number: ")
-    val subchoice = subs.filter(_.id == choice.getOrElse(-1))
-    if(subchoice.length > 0) {
-      val subtitle = subchoice.head
-      println("Downloading " + subtitle.name)
-      val zipfile = SubDownloader.downloadTo(new URL(subtitle.downloadurl), new File("/tmp"))
-      val archive = new ZipArchive(zipfile.getPath())
-      archive.unzipTo(f.getParent())
-      println("Subtitle downloaded to " + f.getParent())
-    } else {
-      println("Invalid option")
+   
+    if(subsfiltered.length == 0) println("No " + language + " subtitles found for " + file)
+    else {
+      val choice = getInt("Enter number: ")
+      val subchoice = subs.filter(_.id == choice.getOrElse(-1))
+      if(subchoice.length > 0) {
+        val subtitle = subchoice.head
+        println("Downloading " + subtitle.name)
+        val zipfile = SubDownloader.downloadTo(new URL(subtitle.downloadurl), new File("/tmp"))
+        val archive = new ZipArchive(zipfile.getPath())
+        archive.unzipTo(f.getParent())
+        println("Subtitle downloaded to " + f.getParent())
+      } else {
+        println("Invalid option")
+      }
     }
     
   }
