@@ -1,6 +1,6 @@
 name := "Subtitle fetcher"
 
-version := "0.1"
+version := "0.3"
 
 scalaVersion := "2.11.4"
 

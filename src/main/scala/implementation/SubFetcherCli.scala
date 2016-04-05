@@ -35,8 +35,8 @@ case class SubFetcherCli(file:String, language:String) {
         println("Downloading " + subtitle.name)
         val zipfile = SubDownloader.downloadTo(new URL(subtitle.downloadurl), new File("/tmp"))
         val archive = new ZipArchive(zipfile.getPath())
-        archive.unzipTo(f.getParent())
-        println("Subtitle downloaded to " + f.getParent())
+        archive.unzipTo(f.getAbsoluteFile().getParent())
+        println("Subtitle downloaded to " + f.getAbsoluteFile().getParent())
       } else {
         println("Invalid option")
       }
