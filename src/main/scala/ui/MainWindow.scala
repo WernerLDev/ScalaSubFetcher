@@ -22,7 +22,6 @@ import scala.swing.event.MouseClicked
 import scala.swing.event.MouseClicked
 
 
-
 class MainWindow() extends SimpleSwingApplication {
 
   setSystemLookAndFeel()
@@ -114,6 +113,7 @@ class MainWindow() extends SimpleSwingApplication {
       add(topright, BorderPanel.Position.East )
       add(windowtop, BorderPanel.Position.West)
     }
+    
     
     contents = new BorderPanel {
       add(head, BorderPanel.Position.North)
