@@ -30,7 +30,7 @@ object AboutWindow extends Frame {
 	
 	contents = new BorderPanel {
 	  add(new Label {
-	    text = "<html>This is a simple subtitle fetcher written in Scala.<br>It uses the opensubtitles.org API<br>Written by Werner Langenhuisen<br>Copyright 2014 - www.icedev.nl"
+	    text = "<html>This is a simple subtitle fetcher written in Scala.<br>It uses the opensubtitles.org API<br>Written by Werner Langenhuisen<br>Copyright 2016 - www.icedev.nl"
 	    
 	  }, BorderPanel.Position.Center)
 	  add(footer, BorderPanel.Position.South)

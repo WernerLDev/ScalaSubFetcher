@@ -15,13 +15,13 @@ case class OSAPIParameters(user:String,pwd:String,agent:String,url:String,langua
 case class LoginResult(seconds:String, status:String, token:String)
 case class LogoutResult(seconds:String, status:String)
 
-
 class XmlRpc(inp :OSAPIParameters) {
 
 	val config = new XmlRpcClientConfigImpl
     config.setServerURL(new URL(inp.url))
     config.setUserAgent(inp.agent)
     config.setEnabledForExtensions(true)
+
     
     val client = new XmlRpcClient
     client.setTransportFactory(new XmlRpcSunHttpTransportFactory(client))
