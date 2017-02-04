@@ -24,3 +24,8 @@ project/plugins/project/
 *.scala~
 *.sbt~
 *~
+
+.idea/
+classes/
+project/
+!project/plugins.sbt

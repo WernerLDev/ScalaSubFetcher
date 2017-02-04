@@ -1,12 +1,14 @@
 name := "Subtitle fetcher"
 
-version := "0.1"
+version := "0.3"
 
 scalaVersion := "2.11.4"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
-libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "1.0.1"
+mainClass in Compile := Some("ScalaSubFetcher")
+
+libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "2.0.0-M2"
 
 libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
 
